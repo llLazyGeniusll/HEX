@@ -121,7 +121,7 @@ function NexusUI.new(title, theme)
     self.TitleBar.Name = "TitleBar"
     self.TitleBar.Size = UDim2.new(1, 0, 0, 50)
     self.TitleBar.Position = UDim2.new(0, 0, 0, 0)
-    self.TitleBar.BackgroundColor3 = self.Theme.Surface
+    self.TitleBar.BackgroundColor3 = tabSystem.Theme.Surface
     self.TitleBar.BorderSizePixel = 0
     self.TitleBar.Parent = self.Container
     
@@ -310,7 +310,7 @@ function NexusUI:Toggle(text, default, callback)
     local container = Instance.new("Frame")
     container.Name = "Toggle"
     container.Size = UDim2.new(1, 0, 0, 40)
-    container.BackgroundColor3 = self.Theme.Surface
+    container.BackgroundColor3 = tabSystem.Theme.Surface
     container.BorderSizePixel = 0
     container.Parent = self.ContentContainer
     
@@ -377,7 +377,7 @@ function NexusUI:Slider(text, min, max, default, callback)
     local container = Instance.new("Frame")
     container.Name = "Slider"
     container.Size = UDim2.new(1, 0, 0, 50)
-    container.BackgroundColor3 = self.Theme.Surface
+    container.BackgroundColor3 = tabSystem.Theme.Surface
     container.BorderSizePixel = 0
     container.Parent = self.ContentContainer
     
@@ -486,7 +486,7 @@ function NexusUI:Input(text, placeholder, callback)
     local container = Instance.new("Frame")
     container.Name = "Input"
     container.Size = UDim2.new(1, 0, 0, 60)
-    container.BackgroundColor3 = self.Theme.Surface
+    container.BackgroundColor3 = tabSystem.Theme.Surface
     container.BorderSizePixel = 0
     container.Parent = self.ContentContainer
     
@@ -538,7 +538,7 @@ function NexusUI:Dropdown(text, options, callback)
     local container = Instance.new("Frame")
     container.Name = "Dropdown"
     container.Size = UDim2.new(1, 0, 0, 40)
-    container.BackgroundColor3 = self.Theme.Surface
+    container.BackgroundColor3 = tabSystem.Theme.Surface
     container.BorderSizePixel = 0
     container.Parent = self.ContentContainer
     
@@ -723,7 +723,7 @@ function NexusUI:Notify(title, text, duration, type)
     local notification = Instance.new("Frame")
     notification.Size = UDim2.new(0, 300, 0, 80)
     notification.Position = UDim2.new(1, 20, 0, 50)
-    notification.BackgroundColor3 = self.Theme.Surface
+    notification.BackgroundColor3 = tabSystem.Theme.Surface
     notification.BorderSizePixel = 0
     notification.Parent = notifyGui
     
@@ -815,7 +815,7 @@ function NexusUI:ProgressBar(text, value)
     local container = Instance.new("Frame")
     container.Name = "ProgressBar"
     container.Size = UDim2.new(1, 0, 0, 50)
-    container.BackgroundColor3 = self.Theme.Surface
+    container.BackgroundColor3 = tabSystem.Theme.Surface
     container.BorderSizePixel = 0
     container.Parent = self.ContentContainer
     
@@ -883,7 +883,9 @@ function NexusUI:CreateTabSystem()
         Tabs = {},
         ActiveTab = nil,
         TabContainer = nil,
-        ContentContainer = nil
+        ContentContainer = nil,
+        Theme = self.Theme,        -- <-- Add this line
+        NexusUI = self            -- <-- Add this line (optional, for future-proof)
     }
     
     -- Replace current content container with tab system
@@ -925,7 +927,7 @@ function NexusUI:CreateTabSystem()
         -- Tab button
         tab.Button = Instance.new("TextButton")
         tab.Button.Size = UDim2.new(0, 100, 1, 0)
-        tab.Button.BackgroundColor3 = self.Theme.Surface
+        tab.Button.BackgroundColor3 = tabSystem.Theme.Surface
         tab.Button.BorderSizePixel = 0
         tab.Button.Text = name
         tab.Button.TextColor3 = self.Theme.TextSecondary
@@ -972,7 +974,7 @@ function NexusUI:CreateTabSystem()
         -- Hide all tabs
         for _, tab in pairs(tabSystem.Tabs) do
             tab.Content.Visible = false
-            tab.Button.BackgroundColor3 = self.Theme.Surface
+            tab.Button.BackgroundColor3 = tabSystem.Theme.Surface
             tab.Button.TextColor3 = self.Theme.TextSecondary
         end
         
@@ -991,7 +993,7 @@ function NexusUI:Keybind(text, defaultKey, callback)
     local container = Instance.new("Frame")
     container.Name = "Keybind"
     container.Size = UDim2.new(1, 0, 0, 40)
-    container.BackgroundColor3 = self.Theme.Surface
+    container.BackgroundColor3 = tabSystem.Theme.Surface
     container.BorderSizePixel = 0
     container.Parent = self.ContentContainer
     
@@ -1071,7 +1073,7 @@ function NexusUI:ColorPicker(text, defaultColor, callback)
     local container = Instance.new("Frame")
     container.Name = "ColorPicker"
     container.Size = UDim2.new(1, 0, 0, 40)
-    container.BackgroundColor3 = self.Theme.Surface
+    container.BackgroundColor3 = tabSystem.Theme.Surface
     container.BorderSizePixel = 0
     container.Parent = self.ContentContainer
     
@@ -1163,7 +1165,7 @@ function NexusUI:SetTheme(themeName)
     
     -- Update existing elements
     self.Container.BackgroundColor3 = self.Theme.Background
-    self.TitleBar.BackgroundColor3 = self.Theme.Surface
+    self.TitleBar.BackgroundColor3 = tabSystem.Theme.Surface
     self.TitleLabel.TextColor3 = self.Theme.Text
     self.ContentContainer.ScrollBarImageColor3 = self.Theme.Primary
 end
