@@ -925,6 +925,7 @@ function NexusUI:CreateTabSystem()
         -- Tab button
         tab.Button = Instance.new("TextButton")
         tab.Button.Size = UDim2.new(0, 100, 1, 0)
+        tab.Button.BackgroundColor3 = self.Theme.Surface
         tab.Button.BorderSizePixel = 0
         tab.Button.Text = name
         tab.Button.TextColor3 = self.Theme.TextSecondary
@@ -1218,8 +1219,10 @@ local TabSystem = Window:CreateTabSystem()
 local MainTab = TabSystem:CreateTab("Main")
 local SettingsTab = TabSystem:CreateTab("Settings")
 
+-- Add to specific tab content
 MainTab.Content.Parent = Window.ContentContainer -- Redirect components to tab
 
+-- Keybinds
 Window:Keybind("Toggle GUI", Enum.KeyCode.RightShift, function()
     Window:Toggle()
 end)
