@@ -121,7 +121,7 @@ function NexusUI.new(title, theme)
     self.TitleBar.Name = "TitleBar"
     self.TitleBar.Size = UDim2.new(1, 0, 0, 50)
     self.TitleBar.Position = UDim2.new(0, 0, 0, 0)
-    self.TitleBar.BackgroundColor3 = tabSystem.Theme.Surface
+    self.TitleBar.BackgroundColor3 = self.Theme.Surface
     self.TitleBar.BorderSizePixel = 0
     self.TitleBar.Parent = self.Container
     
