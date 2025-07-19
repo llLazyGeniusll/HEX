@@ -1,619 +1,520 @@
--- CopilotUI Enhanced - Ultra Modern Aesthetic Roblox UI Library
--- Redesigned with glassmorphism, smooth animations, and premium aesthetics
+-- Modern Roblox UI Library
+-- Version 1.0.0
 
-local CopilotUI = {}
-CopilotUI.__index = CopilotUI
-
+local UILibrary = {}
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
--- Premium glassmorphic theme with vibrant accents
-local Theme = {
-    -- Glassmorphic backgrounds
-    Background = Color3.fromRGB(15, 18, 25),
-    BackgroundSecondary = Color3.fromRGB(22, 26, 35),
-    Glass = Color3.fromRGB(40, 45, 58),
-    GlassLight = Color3.fromRGB(60, 68, 85),
-    
-    -- Vibrant modern accents
-    Primary = Color3.fromRGB(138, 43, 226),     -- Purple
-    PrimaryHover = Color3.fromRGB(155, 65, 240),
-    Secondary = Color3.fromRGB(30, 144, 255),   -- Blue
-    Accent = Color3.fromRGB(0, 255, 127),       -- Spring green
-    AccentHover = Color3.fromRGB(50, 255, 150),
-    
-    -- Status colors
-    Success = Color3.fromRGB(34, 197, 94),
-    Warning = Color3.fromRGB(251, 191, 36),
-    Error = Color3.fromRGB(239, 68, 68),
-    
-    -- Text hierarchy
-    TextPrimary = Color3.fromRGB(255, 255, 255),
-    TextSecondary = Color3.fromRGB(156, 163, 175),
-    TextMuted = Color3.fromRGB(107, 114, 128),
-    
-    -- Borders and dividers
-    Border = Color3.fromRGB(55, 65, 81),
-    BorderLight = Color3.fromRGB(75, 85, 99),
-    
-    -- Interactive states
-    Hover = Color3.fromRGB(75, 85, 99),
-    Active = Color3.fromRGB(99, 102, 241),
+-- Configuration
+local Config = {
+    Theme = {
+        Background = Color3.fromRGB(18, 18, 24),
+        Surface = Color3.fromRGB(28, 28, 35),
+        Primary = Color3.fromRGB(88, 101, 242),
+        Secondary = Color3.fromRGB(114, 137, 218),
+        Accent = Color3.fromRGB(255, 115, 131),
+        Text = Color3.fromRGB(220, 221, 222),
+        TextSecondary = Color3.fromRGB(163, 166, 168),
+        Border = Color3.fromRGB(47, 49, 54),
+        Success = Color3.fromRGB(87, 242, 135),
+        Warning = Color3.fromRGB(255, 202, 40),
+        Error = Color3.fromRGB(237, 66, 69)
+    },
+    Animation = {
+        Speed = 0.3,
+        Style = Enum.EasingStyle.Quart,
+        Direction = Enum.EasingDirection.Out
+    },
+    Fonts = {
+        Bold = Enum.Font.GothamBold,
+        Medium = Enum.Font.GothamMedium,
+        Regular = Enum.Font.Gotham
+    }
 }
 
--- Enhanced easing styles
-local Easing = {
-    Spring = TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-    Smooth = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-    Quick = TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
-    Bounce = TweenInfo.new(0.5, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out),
-}
-
--- Utility functions
-local function CreateTween(obj, props, tweenInfo)
-    return TweenService:Create(obj, tweenInfo or Easing.Smooth, props)
+-- Utility Functions
+local function CreateTween(object, properties, duration)
+    duration = duration or Config.Animation.Speed
+    local tweenInfo = TweenInfo.new(
+        duration,
+        Config.Animation.Style,
+        Config.Animation.Direction
+    )
+    return TweenService:Create(object, tweenInfo, properties)
 end
 
-local function PlayTween(obj, props, tweenInfo)
-    CreateTween(obj, props, tweenInfo):Play()
-end
-
-local function CreateCorner(parent, radius)
+local function AddCorner(parent, radius)
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, radius or 12)
+    corner.CornerRadius = UDim.new(0, radius or 8)
     corner.Parent = parent
     return corner
 end
 
-local function CreateStroke(parent, thickness, color)
+local function AddStroke(parent, thickness, color)
     local stroke = Instance.new("UIStroke")
     stroke.Thickness = thickness or 1
-    stroke.Color = color or Theme.Border
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Color = color or Config.Theme.Border
     stroke.Parent = parent
     return stroke
 end
 
-local function CreateGradient(parent, colors, rotation)
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new(colors)
-    gradient.Rotation = rotation or 0
-    gradient.Parent = parent
-    return gradient
-end
-
-local function CreateDropShadow(parent, size, offset, transparency)
-    local shadow = Instance.new("Frame")
-    shadow.Name = "DropShadow"
-    shadow.Size = UDim2.new(1, size or 20, 1, size or 20)
-    shadow.Position = UDim2.new(0, -(size or 20)/2 + (offset or 0), 0, -(size or 20)/2 + (offset or 2))
-    shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    shadow.BackgroundTransparency = transparency or 0.8
+local function AddShadow(parent)
+    local shadow = Instance.new("ImageLabel")
+    shadow.Name = "Shadow"
+    shadow.Size = UDim2.new(1, 20, 1, 20)
+    shadow.Position = UDim2.new(0, -10, 0, -10)
+    shadow.BackgroundTransparency = 1
+    shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+    shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    shadow.ImageTransparency = 0.8
     shadow.ZIndex = parent.ZIndex - 1
     shadow.Parent = parent.Parent
-    CreateCorner(shadow, 16)
-    
-    local blur = Instance.new("ImageLabel")
-    blur.Size = UDim2.new(1, 0, 1, 0)
-    blur.BackgroundTransparency = 1
-    blur.Image = "rbxassetid://241650934" -- Soft blur texture
-    blur.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    blur.ImageTransparency = 0.7
-    blur.Parent = shadow
-    CreateCorner(blur, 16)
-    
+    AddCorner(shadow, 18)
     return shadow
 end
 
-local function CreateGlowEffect(parent, color, intensity)
-    local glow = Instance.new("Frame")
-    glow.Name = "Glow"
-    glow.Size = UDim2.new(1, 8, 1, 8)
-    glow.Position = UDim2.new(0, -4, 0, -4)
-    glow.BackgroundColor3 = color or Theme.Primary
-    glow.BackgroundTransparency = 0.7
-    glow.ZIndex = parent.ZIndex - 1
-    glow.Parent = parent.Parent
-    CreateCorner(glow, 16)
+-- Main Library Constructor
+function UILibrary:CreateWindow(config)
+    config = config or {}
     
-    -- Animated glow pulse
-    spawn(function()
-        while glow.Parent do
-            PlayTween(glow, {BackgroundTransparency = 0.9}, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut))
-            wait(1.5)
-            PlayTween(glow, {BackgroundTransparency = 0.7}, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut))
-            wait(1.5)
-        end
-    end)
+    local Window = {}
     
-    return glow
-end
-
-function CopilotUI:_setupDragging()
+    -- Create ScreenGui
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = config.Name or "ModernUI"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.Parent = game.CoreGui
+    
+    -- Main Frame
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(0, 520, 0, 350)
+    MainFrame.Position = UDim2.new(0.5, -260, 0.5, -175)
+    MainFrame.BackgroundColor3 = Config.Theme.Background
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Parent = ScreenGui
+    
+    AddCorner(MainFrame, 12)
+    AddStroke(MainFrame, 1, Config.Theme.Border)
+    AddShadow(MainFrame)
+    
+    -- Title Bar
+    local TitleBar = Instance.new("Frame")
+    TitleBar.Name = "TitleBar"
+    TitleBar.Size = UDim2.new(1, 0, 0, 50)
+    TitleBar.Position = UDim2.new(0, 0, 0, 0)
+    TitleBar.BackgroundColor3 = Config.Theme.Surface
+    TitleBar.BorderSizePixel = 0
+    TitleBar.Parent = MainFrame
+    
+    AddCorner(TitleBar, 12)
+    
+    -- Title Text
+    local TitleText = Instance.new("TextLabel")
+    TitleText.Name = "TitleText"
+    TitleText.Size = UDim2.new(1, -60, 1, 0)
+    TitleText.Position = UDim2.new(0, 15, 0, 0)
+    TitleText.BackgroundTransparency = 1
+    TitleText.Text = config.Title or "Modern UI"
+    TitleText.TextColor3 = Config.Theme.Text
+    TitleText.TextSize = 16
+    TitleText.Font = Config.Fonts.Bold
+    TitleText.TextXAlignment = Enum.TextXAlignment.Left
+    TitleText.Parent = TitleBar
+    
+    -- Close Button
+    local CloseButton = Instance.new("TextButton")
+    CloseButton.Name = "CloseButton"
+    CloseButton.Size = UDim2.new(0, 30, 0, 30)
+    CloseButton.Position = UDim2.new(1, -40, 0.5, -15)
+    CloseButton.BackgroundColor3 = Config.Theme.Error
+    CloseButton.Text = "×"
+    CloseButton.TextColor3 = Color3.white
+    CloseButton.TextSize = 18
+    CloseButton.Font = Config.Fonts.Bold
+    CloseButton.BorderSizePixel = 0
+    CloseButton.Parent = TitleBar
+    
+    AddCorner(CloseButton, 6)
+    
+    -- Content Frame
+    local ContentFrame = Instance.new("Frame")
+    ContentFrame.Name = "ContentFrame"
+    ContentFrame.Size = UDim2.new(1, -20, 1, -70)
+    ContentFrame.Position = UDim2.new(0, 10, 0, 60)
+    ContentFrame.BackgroundTransparency = 1
+    ContentFrame.Parent = MainFrame
+    
+    -- Scrolling Frame
+    local ScrollingFrame = Instance.new("ScrollingFrame")
+    ScrollingFrame.Name = "ScrollingFrame"
+    ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+    ScrollingFrame.BackgroundTransparency = 1
+    ScrollingFrame.ScrollBarThickness = 6
+    ScrollingFrame.ScrollBarImageColor3 = Config.Theme.Primary
+    ScrollingFrame.BorderSizePixel = 0
+    ScrollingFrame.Parent = ContentFrame
+    
+    -- Layout
+    local Layout = Instance.new("UIListLayout")
+    Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    Layout.Padding = UDim.new(0, 8)
+    Layout.Parent = ScrollingFrame
+    
+    -- Dragging functionality
     local dragging = false
     local dragStart = nil
     local startPos = nil
     
-    -- Enhanced drag with momentum
-    local function onInputBegan(input)
+    TitleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
-            startPos = self.Frame.Position
-            
-            PlayTween(self.Frame, {Size = UDim2.new(0, 485, 0, 375)}, Easing.Quick)
-            CreateGlowEffect(self.Frame, Theme.Primary, 0.5)
+            startPos = MainFrame.Position
         end
-    end
+    end)
     
-    local function onInputChanged(input)
+    UserInputService.InputChanged:Connect(function(input)
         if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
             local delta = input.Position - dragStart
-            local newPos = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
-            self.Frame.Position = newPos
+            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
-    end
+    end)
     
-    local function onInputEnded(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 and dragging then
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = false
-            PlayTween(self.Frame, {Size = UDim2.new(0, 480, 0, 370)}, Easing.Quick)
-            
-            -- Remove glow
-            if self.Frame.Parent:FindFirstChild("Glow") then
-                self.Frame.Parent.Glow:Destroy()
-            end
-        end
-    end
-    
-    self.TitleBar.InputBegan:Connect(onInputBegan)
-    UserInputService.InputChanged:Connect(onInputChanged)
-    UserInputService.InputEnded:Connect(onInputEnded)
-end
-
-function CopilotUI.new(title)
-    local self = setmetatable({}, CopilotUI)
-    
-    -- Create main ScreenGui
-    self.Gui = Instance.new("ScreenGui")
-    self.Gui.Name = "CopilotUI_Enhanced_" .. math.random(10000, 99999)
-    self.Gui.ResetOnSpawn = false
-    self.Gui.DisplayOrder = 999
-    pcall(function()
-        self.Gui.Parent = gethui and gethui() or game:GetService("CoreGui")
-    end)
-    
-    -- Main container with glassmorphic effect
-    self.Frame = Instance.new("Frame")
-    self.Frame.Size = UDim2.new(0, 480, 0, 370)
-    self.Frame.Position = UDim2.new(0.5, -240, 0.5, -185)
-    self.Frame.BackgroundColor3 = Theme.Background
-    self.Frame.BackgroundTransparency = 0.15
-    self.Frame.BorderSizePixel = 0
-    self.Frame.ZIndex = 10
-    self.Frame.Parent = self.Gui
-    
-    CreateCorner(self.Frame, 20)
-    CreateStroke(self.Frame, 1, Theme.Border)
-    CreateDropShadow(self.Frame, 40, 8, 0.7)
-    
-    -- Glassmorphic overlay
-    local glassOverlay = Instance.new("Frame")
-    glassOverlay.Size = UDim2.new(1, 0, 1, 0)
-    glassOverlay.BackgroundColor3 = Theme.Glass
-    glassOverlay.BackgroundTransparency = 0.6
-    glassOverlay.BorderSizePixel = 0
-    glassOverlay.ZIndex = 11
-    glassOverlay.Parent = self.Frame
-    CreateCorner(glassOverlay, 20)
-    
-    -- Animated gradient overlay
-    local gradientOverlay = Instance.new("Frame")
-    gradientOverlay.Size = UDim2.new(1, 0, 1, 0)
-    gradientOverlay.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    gradientOverlay.BackgroundTransparency = 0.95
-    gradientOverlay.BorderSizePixel = 0
-    gradientOverlay.ZIndex = 12
-    gradientOverlay.Parent = self.Frame
-    CreateCorner(gradientOverlay, 20)
-    
-    local gradient = CreateGradient(gradientOverlay, {
-        Color3.fromRGB(138, 43, 226),
-        Color3.fromRGB(30, 144, 255)
-    })
-    
-    -- Animated gradient rotation
-    spawn(function()
-        local rotation = 0
-        while self.Frame.Parent do
-            rotation = rotation + 0.5
-            gradient.Rotation = rotation % 360
-            wait(0.1)
         end
     end)
-    
-    -- Title bar
-    self.TitleBar = Instance.new("Frame")
-    self.TitleBar.Size = UDim2.new(1, 0, 0, 60)
-    self.TitleBar.BackgroundTransparency = 1
-    self.TitleBar.ZIndex = 15
-    self.TitleBar.Parent = self.Frame
-    
-    -- Title with enhanced typography
-    self.Title = Instance.new("TextLabel")
-    self.Title.Size = UDim2.new(1, -120, 1, 0)
-    self.Title.Position = UDim2.new(0, 24, 0, 0)
-    self.Title.BackgroundTransparency = 1
-    self.Title.Text = title or "CopilotUI Enhanced"
-    self.Title.Font = Enum.Font.GothamBold
-    self.Title.TextSize = 24
-    self.Title.TextColor3 = Theme.TextPrimary
-    self.Title.TextXAlignment = Enum.TextXAlignment.Left
-    self.Title.ZIndex = 16
-    self.Title.Parent = self.TitleBar
-    
-    -- Minimize button
-    self.MinimizeBtn = Instance.new("TextButton")
-    self.MinimizeBtn.Size = UDim2.new(0, 36, 0, 36)
-    self.MinimizeBtn.Position = UDim2.new(1, -88, 0.5, -18)
-    self.MinimizeBtn.BackgroundColor3 = Theme.Warning
-    self.MinimizeBtn.BackgroundTransparency = 0.2
-    self.MinimizeBtn.Text = "—"
-    self.MinimizeBtn.TextColor3 = Theme.TextPrimary
-    self.MinimizeBtn.Font = Enum.Font.GothamBold
-    self.MinimizeBtn.TextSize = 16
-    self.MinimizeBtn.BorderSizePixel = 0
-    self.MinimizeBtn.ZIndex = 16
-    self.MinimizeBtn.Parent = self.TitleBar
-    CreateCorner(self.MinimizeBtn, 18)
-    CreateStroke(self.MinimizeBtn, 1, Theme.BorderLight)
-    
-    -- Close button with enhanced design
-    self.CloseBtn = Instance.new("TextButton")
-    self.CloseBtn.Size = UDim2.new(0, 36, 0, 36)
-    self.CloseBtn.Position = UDim2.new(1, -44, 0.5, -18)
-    self.CloseBtn.BackgroundColor3 = Theme.Error
-    self.CloseBtn.BackgroundTransparency = 0.2
-    self.CloseBtn.Text = "✕"
-    self.CloseBtn.TextColor3 = Theme.TextPrimary
-    self.CloseBtn.Font = Enum.Font.GothamBold
-    self.CloseBtn.TextSize = 14
-    self.CloseBtn.BorderSizePixel = 0
-    self.CloseBtn.ZIndex = 16
-    self.CloseBtn.Parent = self.TitleBar
-    CreateCorner(self.CloseBtn, 18)
-    CreateStroke(self.CloseBtn, 1, Theme.BorderLight)
-    
-    -- Enhanced button interactions
-    local function setupButtonInteractions(btn, hoverColor, clickScale)
-        btn.MouseEnter:Connect(function()
-            PlayTween(btn, {
-                BackgroundTransparency = 0,
-                BackgroundColor3 = hoverColor
-            }, Easing.Quick)
-        end)
-        
-        btn.MouseLeave:Connect(function()
-            PlayTween(btn, {
-                BackgroundTransparency = 0.2,
-                BackgroundColor3 = btn == self.CloseBtn and Theme.Error or Theme.Warning
-            }, Easing.Quick)
-        end)
-        
-        btn.MouseButton1Down:Connect(function()
-            PlayTween(btn, {Size = UDim2.new(0, 32, 0, 32)}, Easing.Quick)
-        end)
-        
-        btn.MouseButton1Up:Connect(function()
-            PlayTween(btn, {Size = UDim2.new(0, 36, 0, 36)}, Easing.Spring)
-        end)
-    end
-    
-    setupButtonInteractions(self.MinimizeBtn, Color3.fromRGB(251, 211, 56))
-    setupButtonInteractions(self.CloseBtn, Color3.fromRGB(255, 88, 88))
     
     -- Close button functionality
-    self.CloseBtn.MouseButton1Click:Connect(function()
-        self:AnimateClose()
+    CloseButton.MouseButton1Click:Connect(function()
+        local closeTween = CreateTween(MainFrame, {
+            Size = UDim2.new(0, 0, 0, 0),
+            Position = UDim2.new(0.5, 0, 0.5, 0)
+        }, 0.2)
+        closeTween:Play()
+        closeTween.Completed:Wait()
+        ScreenGui:Destroy()
     end)
     
-    -- Minimize functionality
-    local minimized = false
-    self.MinimizeBtn.MouseButton1Click:Connect(function()
-        minimized = not minimized
-        if minimized then
-            PlayTween(self.Frame, {
-                Size = UDim2.new(0, 480, 0, 60),
-                BackgroundTransparency = 0.3
-            }, Easing.Spring)
-            self.Content.Visible = false
-        else
-            PlayTween(self.Frame, {
-                Size = UDim2.new(0, 480, 0, 370),
-                BackgroundTransparency = 0.15
-            }, Easing.Spring)
-            self.Content.Visible = true
+    -- Button hover effects
+    CloseButton.MouseEnter:Connect(function()
+        CreateTween(CloseButton, {BackgroundColor3 = Color3.fromRGB(220, 50, 50)}):Play()
+    end)
+    
+    CloseButton.MouseLeave:Connect(function()
+        CreateTween(CloseButton, {BackgroundColor3 = Config.Theme.Error}):Play()
+    end)
+    
+    -- Window methods
+    function Window:CreateSection(title)
+        local Section = {}
+        
+        -- Section Frame
+        local SectionFrame = Instance.new("Frame")
+        SectionFrame.Name = "Section"
+        SectionFrame.Size = UDim2.new(1, 0, 0, 35)
+        SectionFrame.BackgroundColor3 = Config.Theme.Surface
+        SectionFrame.BorderSizePixel = 0
+        SectionFrame.Parent = ScrollingFrame
+        
+        AddCorner(SectionFrame, 8)
+        
+        -- Section Title
+        local SectionTitle = Instance.new("TextLabel")
+        SectionTitle.Name = "SectionTitle"
+        SectionTitle.Size = UDim2.new(1, -20, 1, 0)
+        SectionTitle.Position = UDim2.new(0, 15, 0, 0)
+        SectionTitle.BackgroundTransparency = 1
+        SectionTitle.Text = title or "Section"
+        SectionTitle.TextColor3 = Config.Theme.Text
+        SectionTitle.TextSize = 14
+        SectionTitle.Font = Config.Fonts.Medium
+        SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
+        SectionTitle.Parent = SectionFrame
+        
+        return Section
+    end
+    
+    function Window:CreateButton(config)
+        config = config or {}
+        
+        local ButtonFrame = Instance.new("Frame")
+        ButtonFrame.Name = "ButtonFrame"
+        ButtonFrame.Size = UDim2.new(1, 0, 0, 40)
+        ButtonFrame.BackgroundTransparency = 1
+        ButtonFrame.Parent = ScrollingFrame
+        
+        local Button = Instance.new("TextButton")
+        Button.Name = "Button"
+        Button.Size = UDim2.new(1, 0, 1, 0)
+        Button.BackgroundColor3 = Config.Theme.Primary
+        Button.Text = config.Text or "Button"
+        Button.TextColor3 = Color3.white
+        Button.TextSize = 14
+        Button.Font = Config.Fonts.Medium
+        Button.BorderSizePixel = 0
+        Button.Parent = ButtonFrame
+        
+        AddCorner(Button, 8)
+        
+        -- Hover effects
+        Button.MouseEnter:Connect(function()
+            CreateTween(Button, {BackgroundColor3 = Config.Theme.Secondary}):Play()
+        end)
+        
+        Button.MouseLeave:Connect(function()
+            CreateTween(Button, {BackgroundColor3 = Config.Theme.Primary}):Play()
+        end)
+        
+        -- Click functionality
+        if config.Callback then
+            Button.MouseButton1Click:Connect(config.Callback)
         end
-    end)
-    
-    -- Content area with enhanced scrolling
-    self.Content = Instance.new("ScrollingFrame")
-    self.Content.Size = UDim2.new(1, -32, 1, -80)
-    self.Content.Position = UDim2.new(0, 16, 0, 70)
-    self.Content.BackgroundTransparency = 1
-    self.Content.BorderSizePixel = 0
-    self.Content.ScrollBarThickness = 4
-    self.Content.ScrollBarImageColor3 = Theme.Primary
-    self.Content.ScrollBarImageTransparency = 0.3
-    self.Content.CanvasSize = UDim2.new(0, 0, 0, 0)
-    self.Content.ScrollingDirection = Enum.ScrollingDirection.Y
-    self.Content.ZIndex = 15
-    self.Content.Parent = self.Frame
-    
-    -- Layout with enhanced spacing
-    self.Layout = Instance.new("UIListLayout")
-    self.Layout.Padding = UDim.new(0, 12)
-    self.Layout.SortOrder = Enum.SortOrder.LayoutOrder
-    self.Layout.Parent = self.Content
-    
-    -- Auto-resize canvas
-    self.Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        self.Content.CanvasSize = UDim2.new(0, 0, 0, self.Layout.AbsoluteContentSize.Y + 20)
-    end)
-    
-    -- Setup dragging
-    self:_setupDragging()
-    
-    -- Entrance animation
-    self.Frame.Position = UDim2.new(0.5, -240, 0.5, -500)
-    self.Frame.BackgroundTransparency = 1
-    PlayTween(self.Frame, {
-        Position = UDim2.new(0.5, -240, 0.5, -185),
-        BackgroundTransparency = 0.15
-    }, Easing.Bounce)
-    
-    return self
-end
-
-function CopilotUI:AnimateClose()
-    -- Enhanced close animation
-    PlayTween(self.Frame, {
-        Size = UDim2.new(0, 0, 0, 0),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        BackgroundTransparency = 1
-    }, Easing.Spring)
-    
-    wait(0.5)
-    self.Gui:Destroy()
-end
-
-function CopilotUI:Button(text, callback, color, icon)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 46)
-    btn.BackgroundColor3 = color or Theme.Primary
-    btn.BackgroundTransparency = 0.1
-    btn.Text = ""
-    btn.BorderSizePixel = 0
-    btn.ZIndex = 20
-    btn.Parent = self.Content
-    
-    CreateCorner(btn, 12)
-    CreateStroke(btn, 1, Theme.BorderLight)
-    
-    -- Gradient overlay for premium look
-    local gradientFrame = Instance.new("Frame")
-    gradientFrame.Size = UDim2.new(1, 0, 1, 0)
-    gradientFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    gradientFrame.BackgroundTransparency = 0.9
-    gradientFrame.BorderSizePixel = 0
-    gradientFrame.ZIndex = 21
-    gradientFrame.Parent = btn
-    CreateCorner(gradientFrame, 12)
-    
-    CreateGradient(gradientFrame, {
-        Color3.fromRGB(255, 255, 255),
-        Color3.fromRGB(255, 255, 255)
-    }, 90)
-    
-    -- Button text with icon support
-    local btnText = Instance.new("TextLabel")
-    btnText.Size = UDim2.new(1, icon and -36 or -24, 1, 0)
-    btnText.Position = UDim2.new(0, icon and 36 or 12, 0, 0)
-    btnText.BackgroundTransparency = 1
-    btnText.Text = text or "Button"
-    btnText.TextColor3 = Theme.TextPrimary
-    btnText.Font = Enum.Font.GothamMedium
-    btnText.TextSize = 16
-    btnText.TextXAlignment = icon and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center
-    btnText.ZIndex = 22
-    btnText.Parent = btn
-    
-    -- Icon support
-    if icon then
-        local iconLabel = Instance.new("TextLabel")
-        iconLabel.Size = UDim2.new(0, 24, 0, 24)
-        iconLabel.Position = UDim2.new(0, 12, 0.5, -12)
-        iconLabel.BackgroundTransparency = 1
-        iconLabel.Text = icon
-        iconLabel.TextColor3 = Theme.TextPrimary
-        iconLabel.Font = Enum.Font.GothamBold
-        iconLabel.TextSize = 18
-        iconLabel.ZIndex = 22
-        iconLabel.Parent = btn
-    end
-    
-    -- Enhanced button interactions
-    btn.MouseEnter:Connect(function()
-        PlayTween(btn, {BackgroundTransparency = 0}, Easing.Quick)
-        PlayTween(gradientFrame, {BackgroundTransparency = 0.7}, Easing.Quick)
-        PlayTween(btn, {Size = UDim2.new(1, 4, 0, 48)}, Easing.Quick)
-    end)
-    
-    btn.MouseLeave:Connect(function()
-        PlayTween(btn, {BackgroundTransparency = 0.1}, Easing.Quick)
-        PlayTween(gradientFrame, {BackgroundTransparency = 0.9}, Easing.Quick)
-        PlayTween(btn, {Size = UDim2.new(1, 0, 0, 46)}, Easing.Quick)
-    end)
-    
-    btn.MouseButton1Down:Connect(function()
-        PlayTween(btn, {Size = UDim2.new(1, -4, 0, 42)}, Easing.Quick)
-    end)
-    
-    btn.MouseButton1Up:Connect(function()
-        PlayTween(btn, {Size = UDim2.new(1, 4, 0, 48)}, Easing.Spring)
-    end)
-    
-    if callback then
-        btn.MouseButton1Click:Connect(callback)
-    end
-    
-    return btn
-end
-
-function CopilotUI:Label(text, size, color)
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, 0, 0, size or 32)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text or "Label"
-    lbl.TextColor3 = color or Theme.TextSecondary
-    lbl.TextSize = 15
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.TextWrapped = true
-    lbl.ZIndex = 18
-    lbl.Parent = self.Content
-    return lbl
-end
-
-function CopilotUI:Section(title, subtitle)
-    local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, 0, 0, subtitle and 55 or 40)
-    container.BackgroundColor3 = Theme.Glass
-    container.BackgroundTransparency = 0.7
-    container.BorderSizePixel = 0
-    container.ZIndex = 17
-    container.Parent = self.Content
-    
-    CreateCorner(container, 10)
-    CreateStroke(container, 1, Theme.BorderLight)
-    
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, -20, 0, 24)
-    titleLabel.Position = UDim2.new(0, 16, 0, 8)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = title or "Section"
-    titleLabel.TextColor3 = Theme.Primary
-    titleLabel.TextSize = 18
-    titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    titleLabel.ZIndex = 18
-    titleLabel.Parent = container
-    
-    if subtitle then
-        local subtitleLabel = Instance.new("TextLabel")
-        subtitleLabel.Size = UDim2.new(1, -20, 0, 18)
-        subtitleLabel.Position = UDim2.new(0, 16, 0, 32)
-        subtitleLabel.BackgroundTransparency = 1
-        subtitleLabel.Text = subtitle
-        subtitleLabel.TextColor3 = Theme.TextMuted
-        subtitleLabel.TextSize = 13
-        subtitleLabel.Font = Enum.Font.Gotham
-        subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-        subtitleLabel.ZIndex = 18
-        subtitleLabel.Parent = container
-    end
-    
-    return container
-end
-
-function CopilotUI:Toggle(text, default, callback)
-    local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, 0, 0, 52)
-    container.BackgroundColor3 = Theme.Glass
-    container.BackgroundTransparency = 0.8
-    container.BorderSizePixel = 0
-    container.ZIndex = 19
-    container.Parent = self.Content
-    
-    CreateCorner(container, 12)
-    CreateStroke(container, 1, Theme.BorderLight)
-    
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -80, 1, 0)
-    label.Position = UDim2.new(0, 16, 0, 0)
-    label.BackgroundTransparency = 1
-    label.Text = text or "Toggle"
-    label.TextColor3 = Theme.TextPrimary
-    label.TextSize = 15
-    label.Font = Enum.Font.GothamMedium
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.ZIndex = 20
-    label.Parent = container
-    
-    -- Enhanced toggle switch
-    local toggleFrame = Instance.new("Frame")
-    toggleFrame.Size = UDim2.new(0, 50, 0, 26)
-    toggleFrame.Position = UDim2.new(1, -66, 0.5, -13)
-    toggleFrame.BackgroundColor3 = default and Theme.Accent or Theme.Border
-    toggleFrame.BorderSizePixel = 0
-    toggleFrame.ZIndex = 20
-    toggleFrame.Parent = container
-    CreateCorner(toggleFrame, 13)
-    
-    local toggleKnob = Instance.new("Frame")
-    toggleKnob.Size = UDim2.new(0, 20, 0, 20)
-    toggleKnob.Position = default and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10)
-    toggleKnob.BackgroundColor3 = Theme.TextPrimary
-    toggleKnob.BorderSizePixel = 0
-    toggleKnob.ZIndex = 21
-    toggleKnob.Parent = toggleFrame
-    CreateCorner(toggleKnob, 10)
-    CreateDropShadow(toggleKnob, 8, 2, 0.6)
-    
-    local state = default or false
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, 0, 1, 0)
-    button.BackgroundTransparency = 1
-    button.Text = ""
-    button.ZIndex = 22
-    button.Parent = toggleFrame
-    
-    button.MouseButton1Click:Connect(function()
-        state = not state
         
-        PlayTween(toggleKnob, {
-            Position = state and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10)
-        }, Easing.Spring)
-        
-        PlayTween(toggleFrame, {
-            BackgroundColor3 = state and Theme.Accent or Theme.Border
-        }, Easing.Smooth)
-        
-        if callback then callback(state) end
-    end)
-    
-    -- Hover effects
-    container.MouseEnter:Connect(function()
-        PlayTween(container, {BackgroundTransparency = 0.6}, Easing.Quick)
-    end)
-    
-    container.MouseLeave:Connect(function()
-        PlayTween(container, {BackgroundTransparency = 0.8}, Easing.Quick)
-    end)
-    
-    return container, function() return state end
-end
-
-function CopilotUI:Destroy()
-    if self.Gui then
-        self.Gui:Destroy()
+        return Button
     end
+    
+    function Window:CreateToggle(config)
+        config = config or {}
+        
+        local ToggleFrame = Instance.new("Frame")
+        ToggleFrame.Name = "ToggleFrame"
+        ToggleFrame.Size = UDim2.new(1, 0, 0, 40)
+        ToggleFrame.BackgroundColor3 = Config.Theme.Surface
+        ToggleFrame.BorderSizePixel = 0
+        ToggleFrame.Parent = ScrollingFrame
+        
+        AddCorner(ToggleFrame, 8)
+        
+        local ToggleLabel = Instance.new("TextLabel")
+        ToggleLabel.Name = "ToggleLabel"
+        ToggleLabel.Size = UDim2.new(1, -60, 1, 0)
+        ToggleLabel.Position = UDim2.new(0, 15, 0, 0)
+        ToggleLabel.BackgroundTransparency = 1
+        ToggleLabel.Text = config.Text or "Toggle"
+        ToggleLabel.TextColor3 = Config.Theme.Text
+        ToggleLabel.TextSize = 14
+        ToggleLabel.Font = Config.Fonts.Regular
+        ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        ToggleLabel.Parent = ToggleFrame
+        
+        local ToggleButton = Instance.new("TextButton")
+        ToggleButton.Name = "ToggleButton"
+        ToggleButton.Size = UDim2.new(0, 40, 0, 20)
+        ToggleButton.Position = UDim2.new(1, -50, 0.5, -10)
+        ToggleButton.BackgroundColor3 = Config.Theme.Border
+        ToggleButton.Text = ""
+        ToggleButton.BorderSizePixel = 0
+        ToggleButton.Parent = ToggleFrame
+        
+        AddCorner(ToggleButton, 10)
+        
+        local ToggleCircle = Instance.new("Frame")
+        ToggleCircle.Name = "ToggleCircle"
+        ToggleCircle.Size = UDim2.new(0, 16, 0, 16)
+        ToggleCircle.Position = UDim2.new(0, 2, 0.5, -8)
+        ToggleCircle.BackgroundColor3 = Color3.white
+        ToggleCircle.BorderSizePixel = 0
+        ToggleCircle.Parent = ToggleButton
+        
+        AddCorner(ToggleCircle, 8)
+        
+        local toggled = config.Default or false
+        
+        local function UpdateToggle()
+            if toggled then
+                CreateTween(ToggleButton, {BackgroundColor3 = Config.Theme.Success}):Play()
+                CreateTween(ToggleCircle, {Position = UDim2.new(1, -18, 0.5, -8)}):Play()
+            else
+                CreateTween(ToggleButton, {BackgroundColor3 = Config.Theme.Border}):Play()
+                CreateTween(ToggleCircle, {Position = UDim2.new(0, 2, 0.5, -8)}):Play()
+            end
+        end
+        
+        UpdateToggle()
+        
+        ToggleButton.MouseButton1Click:Connect(function()
+            toggled = not toggled
+            UpdateToggle()
+            if config.Callback then
+                config.Callback(toggled)
+            end
+        end)
+        
+        return {
+            SetValue = function(value)
+                toggled = value
+                UpdateToggle()
+            end,
+            GetValue = function()
+                return toggled
+            end
+        }
+    end
+    
+    function Window:CreateSlider(config)
+        config = config or {}
+        
+        local SliderFrame = Instance.new("Frame")
+        SliderFrame.Name = "SliderFrame"
+        SliderFrame.Size = UDim2.new(1, 0, 0, 50)
+        SliderFrame.BackgroundColor3 = Config.Theme.Surface
+        SliderFrame.BorderSizePixel = 0
+        SliderFrame.Parent = ScrollingFrame
+        
+        AddCorner(SliderFrame, 8)
+        
+        local SliderLabel = Instance.new("TextLabel")
+        SliderLabel.Name = "SliderLabel"
+        SliderLabel.Size = UDim2.new(1, -60, 0, 25)
+        SliderLabel.Position = UDim2.new(0, 15, 0, 5)
+        SliderLabel.BackgroundTransparency = 1
+        SliderLabel.Text = config.Text or "Slider"
+        SliderLabel.TextColor3 = Config.Theme.Text
+        SliderLabel.TextSize = 14
+        SliderLabel.Font = Config.Fonts.Regular
+        SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+        SliderLabel.Parent = SliderFrame
+        
+        local ValueLabel = Instance.new("TextLabel")
+        ValueLabel.Name = "ValueLabel"
+        ValueLabel.Size = UDim2.new(0, 50, 0, 25)
+        ValueLabel.Position = UDim2.new(1, -60, 0, 5)
+        ValueLabel.BackgroundTransparency = 1
+        ValueLabel.Text = tostring(config.Default or 0)
+        ValueLabel.TextColor3 = Config.Theme.Primary
+        ValueLabel.TextSize = 14
+        ValueLabel.Font = Config.Fonts.Medium
+        ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+        ValueLabel.Parent = SliderFrame
+        
+        local SliderTrack = Instance.new("Frame")
+        SliderTrack.Name = "SliderTrack"
+        SliderTrack.Size = UDim2.new(1, -30, 0, 4)
+        SliderTrack.Position = UDim2.new(0, 15, 1, -15)
+        SliderTrack.BackgroundColor3 = Config.Theme.Border
+        SliderTrack.BorderSizePixel = 0
+        SliderTrack.Parent = SliderFrame
+        
+        AddCorner(SliderTrack, 2)
+        
+        local SliderFill = Instance.new("Frame")
+        SliderFill.Name = "SliderFill"
+        SliderFill.Size = UDim2.new(0, 0, 1, 0)
+        SliderFill.BackgroundColor3 = Config.Theme.Primary
+        SliderFill.BorderSizePixel = 0
+        SliderFill.Parent = SliderTrack
+        
+        AddCorner(SliderFill, 2)
+        
+        local SliderHandle = Instance.new("TextButton")
+        SliderHandle.Name = "SliderHandle"
+        SliderHandle.Size = UDim2.new(0, 16, 0, 16)
+        SliderHandle.Position = UDim2.new(0, -6, 0.5, -8)
+        SliderHandle.BackgroundColor3 = Config.Theme.Primary
+        SliderHandle.Text = ""
+        SliderHandle.BorderSizePixel = 0
+        SliderHandle.Parent = SliderFill
+        
+        AddCorner(SliderHandle, 8)
+        
+        local min = config.Min or 0
+        local max = config.Max or 100
+        local value = config.Default or min
+        local dragging = false
+        
+        local function UpdateSlider(newValue)
+            value = math.clamp(newValue, min, max)
+            local percentage = (value - min) / (max - min)
+            
+            CreateTween(SliderFill, {Size = UDim2.new(percentage, 0, 1, 0)}):Play()
+            ValueLabel.Text = tostring(math.floor(value))
+            
+            if config.Callback then
+                config.Callback(value)
+            end
+        end
+        
+        UpdateSlider(value)
+        
+        SliderHandle.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = true
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                local mousePos = UserInputService:GetMouseLocation().X
+                local trackPos = SliderTrack.AbsolutePosition.X
+                local trackSize = SliderTrack.AbsoluteSize.X
+                local percentage = math.clamp((mousePos - trackPos) / trackSize, 0, 1)
+                UpdateSlider(min + (max - min) * percentage)
+            end
+        end)
+        
+        UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = false
+            end
+        end)
+        
+        return {
+            SetValue = function(newValue)
+                UpdateSlider(newValue)
+            end,
+            GetValue = function()
+                return value
+            end
+        }
+    end
+    
+    function Window:CreateTextbox(config)
+        config = config or {}
+        
+        local TextboxFrame = Instance.new("Frame")
+        TextboxFrame.Name = "TextboxFrame"
+        TextboxFrame.Size = UDim2.new(1, 0, 0, 40)
+        TextboxFrame.BackgroundTransparency = 1
+        TextboxFrame.Parent = ScrollingFrame
+        
+        local Textbox = Instance.new("TextBox")
+        Textbox.Name = "Textbox"
+        Textbox.Size = UDim2.new(1, 0, 1, 0)
+        Textbox.BackgroundColor3 = Config.Theme.Surface
+        Textbox.PlaceholderText = config.Placeholder or "Enter text..."
+        Textbox.Text = config.Default or ""
+        Textbox.TextColor3 = Config.Theme.Text
+        Textbox.PlaceholderColor3 = Config.Theme.TextSecondary
+        Textbox.TextSize = 14
+        Textbox.Font = Config.Fonts.Regular
+        Textbox.BorderSizePixel = 0
+        Textbox.ClearTextOnFocus = false
+        Textbox.Parent = TextboxFrame
+        
+        AddCorner(Textbox, 8)
+        AddStroke(Textbox, 1, Config.Theme.Border)
+        
+        -- Focus effects
+        Textbox.Focused:Connect(function()
+            CreateTween(Textbox.UIStroke, {Color = Config.Theme.Primary}):Play()
+        end)
+        
+        Textbox.FocusLost:Connect(function()
+            CreateTween(Textbox.UIStroke, {Color = Config.Theme.Border}):Play()
+            if config.Callback then
+                config.Callback(Textbox.Text)
+            end
+        end)
+        
+        return Textbox
+    end
+    
+    return Window
 end
 
-return CopilotUI
+return UILibrary
