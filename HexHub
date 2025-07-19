@@ -663,7 +663,6 @@ function NexusUI:Label(text, size)
     self:_updateContentSize()
     return label
 end
-
 -- Separator Component
 function NexusUI:Separator()
     local separator = Instance.new("Frame")
@@ -1219,10 +1218,8 @@ local TabSystem = Window:CreateTabSystem()
 local MainTab = TabSystem:CreateTab("Main")
 local SettingsTab = TabSystem:CreateTab("Settings")
 
--- Add to specific tab content
 MainTab.Content.Parent = Window.ContentContainer -- Redirect components to tab
 
--- Keybinds
 Window:Keybind("Toggle GUI", Enum.KeyCode.RightShift, function()
     Window:Toggle()
 end)
