@@ -925,7 +925,6 @@ function NexusUI:CreateTabSystem()
         -- Tab button
         tab.Button = Instance.new("TextButton")
         tab.Button.Size = UDim2.new(0, 100, 1, 0)
-        tab.Button.BackgroundColor3 = self.Theme.Surface
         tab.Button.BorderSizePixel = 0
         tab.Button.Text = name
         tab.Button.TextColor3 = self.Theme.TextSecondary
